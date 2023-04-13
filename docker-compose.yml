@@ -34,6 +34,8 @@ services:
       - "8080:8080"
       - "7077:7077"
     environment:
+      - SPARK_LOCAL_IP=spark-master
+      - SPARK_WORKLOAD=master
       - SPARK_CONF_DIR=/conf
       - SPARK_PUBLIC_DNS=localhost
       - SPARK_MASTER_HOST=spark-master
@@ -41,21 +43,28 @@ services:
     volumes:
       - ./spark-data:/tmp/spark-data
       - ./spark-conf:/conf
+      - /Users/nickphom/BigData:/Users/nickphom/BigData
     command: /spark/bin/spark-class org.apache.spark.deploy.master.Master
 
   spark-worker:
     image: bde2020/spark-worker:3.1.1-hadoop3.2
     container_name: spark-worker
     hostname: spark-worker
+    ports:
+      - "8081:8081"
+      - "7500:7500"
     environment:
       - SPARK_CONF_DIR=/conf
       - SPARK_PUBLIC_DNS=localhost
-      - SPARK_WORKER_CORES=1
-      - SPARK_WORKER_MEMORY=1g
+      - SPARK_WORKER_CORES=7
+      - SPARK_WORKER_MEMORY=24g
       - SPARK_WORKER_INSTANCES=1
-      - SPARK_MASTER_HOST=spark-master
+      - SPARK_MASTER=spark://spark-master:7077
+      #- SPARK_MASTER_HOST=spark-master
       - SPARK_MASTER_PORT=7077
     volumes:
       - ./spark-data:/tmp/spark-data
       - ./spark-conf:/conf
+      - /Users/nickphom/BigData:/Users/nickphom/BigData
     command: /spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+
