@@ -30,6 +30,10 @@ You will need to provide your GCP credentials in the environment variable GOOGLE
 
 ## Volumes
 This setup uses volumes to persist Hadoop data between container restarts. The data is stored in the hadoop-data directory. You can change the location of this directory by modifying the volumes section of the namenode and datanode services in the docker-compose.yml file.
+## IMPORTANT
+
+if you wish to use your locally installed pyspark, you must mount vulumes to use your own data
+I.E  - /Users/nickphom/BigData:/Users/nickphom/BigData in volumes where i have data change to your needs
 
 ## Ports
 This setup exposes the following ports:
