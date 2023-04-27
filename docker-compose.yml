@@ -1,34 +1,59 @@
 version: '3.8'
 
+networks:
+  hadoop:
+    driver: bridge
+
 services:
   namenode:
     image: sequenceiq/hadoop-docker:2.7.1
-    container_name: hadoop-namenode
+    container_name: hadoop-namenode-standalone
     hostname: namenode
     ports:
       - "50070:50070"
       - "9000:9000"
+      - "9870:9870"
+      - "9864:9864"
+   
     volumes:
       - ./hadoop-data/namenode:/hadoop/dfs/name
       - ./hadoop-data:/hadoop-data
     environment:
       - CLUSTER_NAME=docker-hadoop
+      - HADOOP_USER_NAME=root
+      - HADOOP_GROUP_NAME=root
+      - PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin
+      - ./config/core-site.xml:/usr/local/hadoop/etc/hadoop/core-site.xml
+    networks:
+      hadoop:
+
+
     command: /etc/bootstrap.sh -d namenode
 
   datanode:
     image: sequenceiq/hadoop-docker:2.7.1
-    container_name: hadoop-datanode
+    container_name: hadoop-datanode-standalone
     hostname: datanode
     volumes:
       - ./hadoop-data/datanode:/hadoop/dfs/data
       - ./hadoop-data:/hadoop-data
     environment:
       - CLUSTER_NAME=docker-hadoop
+      - HADOOP_USER_NAME=root
+      - HADOOP_GROUP_NAME=root
+      - PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin
+      - ./config/core-site.xml:/usr/local/hadoop/etc/hadoop/core-site.xml
+    networks:
+      hadoop:
+
+
+
+
     command: /etc/bootstrap.sh -d datanode
 
   spark-master:
     image: bde2020/spark-master:3.1.1-hadoop3.2
-    container_name: spark-master
+    container_name: spark-master-standalone
     hostname: spark-master
     ports:
       - "8080:8080"
@@ -40,31 +65,40 @@ services:
       - SPARK_PUBLIC_DNS=localhost
       - SPARK_MASTER_HOST=spark-master
       - SPARK_MASTER_PORT=7077
+      - HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop
     volumes:
       - ./spark-data:/tmp/spark-data
       - ./spark-conf:/conf
       - /Users/nickphom/BigData:/Users/nickphom/BigData
     command: /spark/bin/spark-class org.apache.spark.deploy.master.Master
+    networks:
+      hadoop:
+ 
 
   spark-worker:
-    image: bde2020/spark-worker:3.1.1-hadoop3.2
-    container_name: spark-worker
-    hostname: spark-worker
-    ports:
-      - "8081:8081"
-      - "7500:7500"
-    environment:
-      - SPARK_CONF_DIR=/conf
-      - SPARK_PUBLIC_DNS=localhost
-      - SPARK_WORKER_CORES=7
-      - SPARK_WORKER_MEMORY=24g
-      - SPARK_WORKER_INSTANCES=1
-      - SPARK_MASTER=spark://spark-master:7077
-      #- SPARK_MASTER_HOST=spark-master
-      - SPARK_MASTER_PORT=7077
-    volumes:
-      - ./spark-data:/tmp/spark-data
-      - ./spark-conf:/conf
-      - /Users/nickphom/BigData:/Users/nickphom/BigData
-    command: /spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+      image: bde2020/spark-worker:3.1.1-hadoop3.2
+      container_name: spark-worker-standalone
+      hostname: spark-worker
+      ports:
+        - "8081:8081"
+        - "7500:7500"
+      environment:
+        - SPARK_CONF_DIR=/conf
+        - SPARK_PUBLIC_DNS=localhost
+        - SPARK_WORKER_CORES=7
+        - SPARK_WORKER_MEMORY=24g
+        - SPARK_WORKER_INSTANCES=1
+        - SPARK_MASTER=spark://spark-master:7077
+        #- SPARK_MASTER_HOST=spark-master
+        - SPARK_MASTER_PORT=7077
+        - HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop
+      volumes:
+        - ./spark-data:/tmp/spark-data
+        - ./spark-conf:/conf
+        - /Users/nickphom/BigData:/Users/nickphom/BigData
+      command: /spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+      networks:
+        hadoop:
+
+  
 
