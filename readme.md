@@ -7,8 +7,12 @@ This Docker Compose setup provides a local development environment for Apache Sp
 ## Usage
  1. Clone this repository.
  2. Run docker-compose up to start the containers.
- 3. Connect to the Jupyter notebook by opening your web browser and navigating to http://localhost:8888. The access token is printed in the console output.
-Use the provided pyspark command in the Jupyter notebook to create a SparkSession.
+ 3. You can run this on your locally install jupyterlab/pyspark instance requires PySpark Version :3.1.1 !
+ 4. You may need to edit /etc/hosts on your machine, add 
+ 127.0.0.1       localhost spark-master namenode datanode
+::1             localhost spark-master namenode datanode
+
+ 5. create a spark context on spark://spark-master:7077
 ## S3 Support
 This setup includes the Hadoop S3A filesystem library. To connect to an S3 bucket, you can use the s3a:// prefix in your file paths.
 
@@ -39,4 +43,3 @@ I.E  - /Users/nickphom/BigData:/Users/nickphom/BigData in volumes where i have d
 This setup exposes the following ports:
 
 50070: Hadoop NameNode web UI
-8888: Jupyter Notebook
