@@ -9,7 +9,9 @@ This Docker Compose setup provides a local development environment for Apache Sp
  2. Run docker-compose up to start the containers.
  3. You can run this on your locally install jupyterlab/pyspark instance requires PySpark Version :3.1.1 !
  4. You may need to edit /etc/hosts on your machine, add 
+ 
  127.0.0.1       localhost spark-master namenode datanode
+ 
 ::1             localhost spark-master namenode datanode
 
  5. create a spark context on spark://spark-master:7077
