@@ -45,3 +45,4 @@ I.E  - /Users/nickphom/BigData:/Users/nickphom/BigData in volumes where i have d
 This setup exposes the following ports:
 
 50070: Hadoop NameNode web UI
+8080: Spark Master
